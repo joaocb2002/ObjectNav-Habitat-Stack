@@ -14,6 +14,7 @@ dependencies:
 
   # 4) Headless build selector (enables offscreen/headless usage)
   - headless
+  - withbullet
 
   # 5) Pip inside the conda env (we’ll use it for habitat-lab)
   - pip
