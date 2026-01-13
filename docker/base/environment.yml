@@ -1,0 +1,27 @@
+name: habitat
+channels:
+  - conda-forge
+  - aihabitat
+dependencies:
+  # 1) Pin Python for compatibility (Habitat-Sim requires >=3.9)
+  - python=3.9
+
+  # 2) Helpful build/runtime tools (common in Habitat docs)
+  - cmake=3.14
+
+  # 3) Habitat-Sim pinned to a stable release
+  - habitat-sim=0.3.3
+
+  # 4) Headless build selector (enables offscreen/headless usage)
+  - headless
+
+  # 5) Pip inside the conda env (we’ll use it for habitat-lab)
+  - pip
+
+  # 6) Pip packages (pinned)
+  - pip:
+      # Habitat-Lab pinned to the stable PyPI release
+      - habitat-lab==0.3.320250127
+      # Optional but commonly used with Habitat-Lab releases
+      - habitat-baselines==0.3.320250127
+
