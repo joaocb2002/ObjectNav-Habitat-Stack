@@ -9,15 +9,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 #    - building native extensions
 #    - OpenGL / EGL headless rendering
 RUN apt-get update && apt-get install -y \
-    wget \
-    curl \
-    git \
-    ca-certificates \
-    build-essential \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender1 \
+    wget curl git ca-certificates build-essential \
+    libglib2.0-0 libsm6 libxext6 libxrender1 \
+    libopengl0 libglvnd0 libgl1 libegl1 libglx0 libgles2 \
     && rm -rf /var/lib/apt/lists/*
 
 # 4) Install Miniconda
@@ -26,8 +20,10 @@ RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.s
     bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
     rm /tmp/miniconda.sh
 
-# 5) Make conda available in PATH
+# 5) Make conda available in PATH and accept Anaconda TOS
 ENV PATH=$CONDA_DIR/bin:$PATH
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
 # 6) Copy the environment specification into the image
 COPY environment.yml /tmp/environment.yml
