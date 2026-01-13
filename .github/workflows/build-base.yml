@@ -10,7 +10,7 @@ on:
 
 permissions:
   contents: read
-  packages: write
+  packages: write # for pushing to GHCR
 
 env:
   REGISTRY: ghcr.io
