@@ -1,5 +1,5 @@
 # 1) Start from your already-built base image
-FROM ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-base:main
+FROM ghcr.io/joaocb2002/object-nav-habitat/habitat-base:main
 
 # 2) Copy project requirements
 COPY requirements.txt /tmp/requirements.txt

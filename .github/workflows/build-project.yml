@@ -14,7 +14,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: joaocb2002/object-nav-habitat-stack/habitat-project
+  IMAGE_NAME: joaocb2002/object-nav-habitat/habitat-project
 
 jobs:
   build-and-push:

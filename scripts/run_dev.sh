@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-IMAGE="ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-project:main"
+IMAGE="ghcr.io/joaocb2002/object-nav-habitat/habitat-project:main"
 WORKDIR="/workspace"
 
 DATA_DIR="${DATA_DIR:-$HOME/datasets}"

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-IMAGE="ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-project:main"
+IMAGE="ghcr.io/joaocb2002/object-nav-habitat/habitat-project:main"
 
-echo "=== ObjectNav Habitat Stack: bootstrap ==="
+echo "=== ObjectNav Habitat: bootstrap ==="
 
 # 1) Check Docker CLI
 if ! command -v docker >/dev/null 2>&1; then
