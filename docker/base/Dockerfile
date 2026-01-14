@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     libopengl0 libglvnd0 libgl1 libegl1 libglx0 libgles2 \
     && rm -rf /var/lib/apt/lists/*
 
-# 4) Install Miniconda
+# 4) Install Miniconda for package management
 ENV CONDA_DIR=/opt/conda
 RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
     bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
