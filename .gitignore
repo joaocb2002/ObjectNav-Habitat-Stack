@@ -215,3 +215,6 @@ outputs/
 *.log
 *.mp4
 *.png
+
+# Data
+data/
