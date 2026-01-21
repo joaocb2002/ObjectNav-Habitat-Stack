@@ -5,7 +5,7 @@ import ultralytics.engine.results
 import ultralytics.utils.ops
 import torch
 import torchvision
-from ultralytics.utils.ops import xywh2xyxy, LOGGER, nms_rotated
+from objectnav.perception.ultralytics_compat import xywh2xyxy, LOGGER, nms_rotated
 import ultralytics.engine.results as results_mod
 from ultralytics.models.yolo.detect.predict import DetectionPredictor
 from ultralytics.utils.ops import scale_boxes, convert_torch2numpy_batch

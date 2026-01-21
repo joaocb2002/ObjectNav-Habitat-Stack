@@ -7,7 +7,7 @@ def main():
     from objectnav.legacy.mylib import simtools     # noqa: F401
     from objectnav.legacy.mylib import probtools    # noqa: F401
     from objectnav.legacy.mylib import dqn_v2       # noqa: F401
-
+    from objectnav.legacy.mylib import yolo_patch_softmax
     print("Legacy imports OK")
 
 if __name__ == "__main__":
