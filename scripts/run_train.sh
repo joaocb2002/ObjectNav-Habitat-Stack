@@ -7,6 +7,7 @@ set -e
 IMAGE="ghcr.io/joaocb2002/object-nav-habitat/habitat-project:main"
 WORKDIR="/workspace"
 
+# This will create the directories if they do not exist
 DATA_DIR="${DATA_DIR:-$HOME/datasets}"
 OUTPUT_DIR="${OUTPUT_DIR:-$PWD/outputs}"
 

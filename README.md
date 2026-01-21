@@ -106,7 +106,7 @@ sudo systemctl start docker
 
 ### 5️⃣ Enter a container with interactive shell
 ```bash
-./scripts/run_train.sh bash
+./scripts/run_dev.sh bash
 ```
 
 ### 6️⃣ Start developing (VS Code attachment)
@@ -115,6 +115,7 @@ sudo systemctl start docker
 ### 7️⃣ Stop docker daemon
 ```bash
 sudo systemctl stop docker
+sudo systemctl stop docker.socket
 ```
 
 ### Additional useful commands
@@ -132,7 +133,7 @@ docker ps -a # Container info
 
 ### 1️⃣ Enter a container with interactive shell
 ```bash
-./scripts/run_train.sh bash
+./scripts/run_dev.sh bash
 ```
 
 ### 2️⃣ Start developing (VS Code attachment)
@@ -141,6 +142,7 @@ docker ps -a # Container info
 ### 3️⃣ Stop docker daemon
 ```bash
 sudo systemctl stop docker
+sudo systemctl stop docker.socket
 ```
 
 ---
