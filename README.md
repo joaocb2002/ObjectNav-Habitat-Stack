@@ -104,11 +104,6 @@ export DATA_DIR=/path/to/datasets
 ./scripts/run_train.sh bash
 ```
 
-### 5️⃣ Enter a container with interactive shell
-```bash
-./scripts/run_train.sh bash
-```
-
 ### 6️⃣ Start developing (VS Code attachment)
 - Folder: `workspace/src`
 
