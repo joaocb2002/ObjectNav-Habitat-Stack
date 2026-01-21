@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import numpy as np
 
-# We keep the dependency on legacy in ONE place.
+# Keep legacy dependency in ONE place.
 from objectnav.legacy.mylib import probtools
 
 
@@ -12,11 +13,15 @@ def likelihood_from_detection(
     classes_bins: dict,
 ) -> np.ndarray:
     """
-    Wrapper around legacy probtools.compute_likelihood_vector.
+    Compute likelihood vector for an observation (detection).
 
-    score_vec: categorical probs from detector (sum ~ 1)
-    bbox_scale: bbox area as % of image (or whatever you used)
-    dirichlet_priors/classes_bins: calibration data
+    This delegates to the legacy implementation:
+    - computes bin index from bbox_scale
+    - evaluates Dirichlet pdf per class
+    - normalizes, then appends a background likelihood element
+
+    Returns:
+        np.ndarray of shape (K+1,) where the last entry is background.
     """
     return probtools.compute_likelihood_vector(
         score_vec=score_vec,
