@@ -1,6 +1,6 @@
 # Deep learning
-torch
-torchvision
+torch==2.5.1
+torchvision==0.20.1
 
 # YOLO
 ultralytics==8.4.0
