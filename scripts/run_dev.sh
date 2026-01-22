@@ -16,20 +16,28 @@ mkdir -p "$DATA_DIR"
 if [ $# -eq 0 ]; then
   docker run --rm -it \
     --gpus all \
+    --user "$(id -u):$(id -g)" \
+    -e HOME=/workspace \
+    -v /etc/passwd:/etc/passwd:ro \
+    -v /etc/group:/etc/group:ro \
     -v "$(pwd)":$WORKDIR \
     -v "$DATA_DIR":/data:ro \
     -v "$OUTPUT_DIR":/outputs \
     -w $WORKDIR \
     $IMAGE \
-    bash -lc "pip install -e . && exec bash"
+    bash -lc "pip install --user -e . && exec bash"
 else
   # Run the provided command after installing the package.
   docker run --rm -it \
     --gpus all \
+    --user "$(id -u):$(id -g)" \
+    -e HOME=/workspace \
+    -v /etc/passwd:/etc/passwd:ro \
+    -v /etc/group:/etc/group:ro \
     -v "$(pwd)":$WORKDIR \
     -v "$DATA_DIR":/data:ro \
     -v "$OUTPUT_DIR":/outputs \
     -w $WORKDIR \
     $IMAGE \
-    bash -lc "pip install -e . && exec \"\$@\"" -- "$@"
+    bash -lc "pip install --user -e . && exec \"\$@\"" -- "$@"
 fi
