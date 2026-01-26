@@ -1,5 +1,6 @@
 name: habitat
 channels:
+# Package sources/repositories
   - conda-forge
   - aihabitat
 dependencies:
@@ -13,7 +14,7 @@ dependencies:
   - habitat-sim=0.3.3
 
   # 4) Numpy
-  - numpy<2
+  - numpy=1.26.4
 
   # 5) Headless build selector (enables offscreen/headless usage)
   - headless
@@ -22,7 +23,7 @@ dependencies:
   # 6) Pip inside the conda env (we'll use it for habitat-lab)
   - pip
 
-  # 7) Pip packages (pinned)
+  # 7) Packages installed via pip only (not available via conda)
   - pip:
       # Habitat-Lab pinned to the stable PyPI release
       - habitat-lab==0.3.320250127

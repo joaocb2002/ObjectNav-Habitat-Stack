@@ -1,12 +1,9 @@
-# Deep learning
-torch==2.5.1
-torchvision==0.20.1
-
-# YOLO
+# YOLO (2026 version; it has YOLO26 models but we'll use YOLO11)
 ultralytics==8.4.0
 
 # Numerics & scientific computing
-numpy<2.0
+# Try not to make things strict. Numpy has to be < 2.0 for compatibility.
+numpy==1.26.4
 scipy
 scikit-learn
 scikit-image
