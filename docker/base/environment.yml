@@ -8,7 +8,7 @@ dependencies:
   - python=3.9
 
   # 2) Helpful build/runtime tools (common in Habitat docs)
-  - cmake=3.14
+  - cmake=3.26
 
   # 3) Habitat-Sim pinned to a stable release
   - habitat-sim=0.3.3

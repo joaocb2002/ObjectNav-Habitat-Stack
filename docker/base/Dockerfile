@@ -1,6 +1,6 @@
 # CUDA runtime on Ubuntu 22.04 (official NVIDIA CUDA image) with cudnn for GPU acceleration optimizations.
 # Note: Docker Hub nvidia/cudagl doesn't have ubuntu22.04 tags; use nvidia/cuda + GLVND/EGL setup instead.
-FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
 
 # Set noninteractive frontend for apt-get in ubuntu/debian (no dialog prompts when installing packages)
 ENV DEBIAN_FRONTEND=noninteractive
