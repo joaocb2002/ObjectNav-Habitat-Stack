@@ -5,7 +5,7 @@ channels:
   - aihabitat
 dependencies:
   # 1) Pin Python for compatibility (Habitat-Sim requires >=3.9)
-  - python=3.10
+  - python=3.9
 
   # 2) Helpful build/runtime tools (common in Habitat docs)
   - cmake=3.14
