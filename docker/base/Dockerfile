@@ -15,6 +15,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libopengl0 libglvnd0 libgl1 libegl1 libglx0 libgles2 \
     && rm -rf /var/lib/apt/lists/*
 
+# Add the NVIDIA EGL vendor entry so GLVND can route EGL calls to the NVIDIA driver at runtime. Juts like in Habitat-Challenge dockerfiles.
+# Note: nvidia/cuda images post-12.0 come with this file already, but 11.8 does not.
+RUN mkdir -p /usr/share/glvnd/egl_vendor.d && \
+    printf '{\n  "file_format_version": "1.0.0",\n  "ICD": { "library_path": "libEGL_nvidia.so.0" }\n}\n' \
+      > /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+
+# # Make GLVND prefer NVIDIA EGL in headless runs (helps avoid Mesa/conda hijacking).
+# ENV __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json
+# ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}
+# ENV LD_PRELOAD=/lib/x86_64-linux-gnu/libGLX_nvidia.so.0:/lib/x86_64-linux-gnu/libGLdispatch.so.0
+
 # Install Miniconda (for the the long-running Intel/PC-style instruction set x86 in 64 bit-mode: normal Linux PC architecture)
 # For Linux on ARM servers (e.g., AWS Graviton), use Miniconda3-latest-Linux-aarch64.sh instead.
 # Always point to newest release
