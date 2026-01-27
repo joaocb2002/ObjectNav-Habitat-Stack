@@ -37,10 +37,7 @@ class NavmeshConfig:
     Navigation mesh configuration constants.
     Prefer overriding via a run config (YAML) rather than editing code.
     """
-    # --- Map/grid parameters ---
-    cell_height: float = field(default=0.25, metadata={"help": "Height of a grid cell in meters."})
-    cell_side: float = field(default=0.25, metadata={"help": "Side length of a grid cell in meters."})
-
+    
     # --- Navmesh parameters ---
     include_static_objects: bool = field(default=True, metadata={"help": "Include static objects in navmesh generation."})
     cell_size: float = field(default=0.05, metadata={"help": "Cell size for navmesh generation in meters."})
@@ -55,3 +52,16 @@ class NavmeshConfig:
     agent_max_climb: float = field(default=0.2, metadata={"help": "Maximum climbable height in meters."})
     agent_max_slope: float = field(default=45.0, metadata={"help": "Maximum navigable slope in degrees."})
 
+
+@dataclass(frozen=True)
+class GridMapConfig:
+    """
+    Grid map configuration constants.
+    Prefer overriding via a run config (YAML) rather than editing code.
+    """
+
+    # --- Grid map parameters ---
+    map_resolution: float = field(default=1024, metadata={"help": "Length of the longest side of the map. Used to calculate meters_per_pixel."})
+    height: float = field(default=0.0, metadata={"help": "The height in the environment to make the topdown map from."})
+    meters_per_pixel: float = field(init=False, metadata={"help": "Meters per pixel for the grid map, computed from map_resolution."})
+    draw_border: bool = field(default=True, metadata={"help": "Whether to draw a border around the map."})
