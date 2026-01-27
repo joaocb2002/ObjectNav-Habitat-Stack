@@ -1,240 +1,209 @@
-# 🧭 ObjectNav Habitat
+# ObjectNav Habitat 🧭
 
-A reproducible **Docker-based stack** for running **Habitat-Sim / Habitat-Lab** experiments locally or on remote GPU servers.
+A reproducible Docker-based research environment for running Habitat-Sim / Habitat-Lab experiments locally or on remote GPU servers 🚀. The project is designed to support structured experimentation at the intersection of deep reinforcement learning and probabilistic (Bayesian) inference.
 
----
-
-## ✨ What You Get
-
-- 🔁 **Fully reproducible environments** via Docker images hosted on GHCR
-- 🧱 **Two-layer image architecture**
-  - **`habitat-base`**: heavy, stable dependencies  
-    *(Habitat-Sim, Habitat-Lab, Miniconda)*
-  - **`habitat-project`**: project-specific dependencies  
-    *(YOLO / Ultralytics, CV & ML libraries, etc.)*
-- 🚀 **Simple commands to launch containers**
-  - `scripts/run_dev.sh` — interactive development (local machine-oriented)
-  - `scripts/run_train.sh` — long training runs (server-oriented)
+The repository separates **infrastructure concerns** (containers, dependencies, execution scripts) from **research logic** (models, training loops, configurations), enabling repeatable experiments and easier extension over time.
 
 ---
 
-## 📁 Repository Layout
+## Scope and Goals
+
+* Provide a deterministic, versioned runtime for Habitat-based experiments
+* Support both interactive development and long-running training jobs
+* Enable future expansion of research components (algorithms, models, evaluation)
+* Minimize environment-related variability across machines and servers
+
+This README documents the *structure and usage* of the stack. Scientific details of methods, models, and experiments are expected to live in `src/` and `configs/` and evolve independently.
+
+---
+
+## Repository Structure
 
 ```
 .
 ├── docker/
-│   ├── base/
+│   ├── base/               # Stable, heavy dependencies
 │   │   ├── Dockerfile
 │   │   └── environment.yml
-│   └── project/
+│   └── project/            # Project-specific Python dependencies
 │       ├── Dockerfile
 │       └── requirements.txt
-├── .github/workflows/
-│   └── GitHub Actions (build & push images to GHCR)
-├── scripts/
-│   └── Container helper scripts
-├── src/
-    └── Source code for experiments
-├── configs/
-    └── Experiment configurations
-└── outputs/
-    └── Experiment outputs (not pushed)
+├── .github/workflows/       # CI: build & push Docker images
+├── scripts/                 # Container and execution helpers
+├── src/                     # Research code (models, training, evaluation)
+├── configs/                 # Experiment configuration files
+└── outputs/                 # Experiment outputs (not versioned)
 ```
 
-**Notes**
-- Changes in `docker/base/` trigger a rebuild of **habitat-base**
-- Changes in `docker/project/` trigger a rebuild of **habitat-project**
+**Build logic**
+
+* Changes in `docker/base/` trigger a rebuild of the base image
+* Changes in `docker/project/` trigger a rebuild of the project image
 
 ---
 
-## 🐳 Docker Images (GHCR)
+## Docker Image Architecture
 
-- **Base image**  
+The stack uses a two-layer image design:
+
+* **habitat-base**
+
+  * Habitat-Sim
+  * Habitat-Lab
+  * System libraries and CUDA bindings
+  * Conda / Python runtime
+
+* **habitat-project**
+
+  * Research-specific Python dependencies
+  * Computer vision and ML libraries
+  * Lightweight and frequently changing
+
+This separation reduces rebuild time and improves reproducibility.
+
+---
+
+## Published Images (GHCR)
+
+* Base image:
   `ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-base`
-- **Project image**  
+
+* Project image:
   `ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-project`
 
-### 🏷️ Tags
-- `:main` — latest build from the `main` branch
-- `:sha-<commit>` — immutable, fully reproducible builds
+### Tags
+
+* `:main` – latest build from the main branch
+* `:sha-<commit>` – immutable, fully reproducible builds
 
 ---
 
-## 🖥️ Host Prerequisites
+## Host Requirements
 
-- Ubuntu 22.04 *(recommended)*
-- NVIDIA GPU driver installed
-- Docker Engine
-- NVIDIA Container Toolkit *(required for `--gpus all`)*
+* Linux (Ubuntu 22.04 recommended)
+* NVIDIA GPU
+* NVIDIA driver (560.x or newer recommended)
+* Docker Engine
+* NVIDIA Container Toolkit (required for GPU access)
 
 ---
 
-## ⚡ Quickstart (New Machine)
+## Data and Outputs
 
-### 1️⃣ Clone the repository
+* Datasets are **not** included in Docker images
+* Expected default dataset location: `~/datasets`
+* Outputs are written to `./outputs` (created automatically)
+
+To use a custom dataset location:
+
+```bash
+export DATA_DIR=/path/to/datasets
+```
+
+---
+
+## Basic Usage
+
+### Clone the Repository
+
 ```bash
 git clone https://github.com/joaocb2002/object-nav-habitat.git
 cd object-nav-habitat
 ```
 
-### 2️⃣ Pull the project image
+### Pull the Project Image
+
 ```bash
-docker pull ghcr.io/joaocb2002/object-nav-habitat/habitat-project:main
+docker pull ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-project:main
 ```
 
-### 3️⃣ Prepare datasets & outputs
+### Sanity Check
 
-**Expected defaults**
-- Datasets: `~/datasets`
-- Outputs: `./outputs` *(auto-created)*
-
-If datasets live elsewhere:
 ```bash
-export DATA_DIR=/path/to/datasets
+./scripts/bootstrap.sh
+./scripts/run_dev.sh python scripts/sanity_check.py
 ```
 
-### 4️⃣ Start docker daemon (Ubuntu). Note: NOT Docker Desktop
-```bash
-sudo systemctl start docker
-```
+---
 
-### 5️⃣ Bootstrap and Sanity check
-```bash
-./scripts/bootstrap.sh # Check if infrastructure is set
-./scripts/run_dev.sh python scripts/sanity_check.py # Check if containers can import habitat
-```
+## Development Workflow
 
-### 5️⃣ Enter a container with interactive shell
+Use `run_dev.sh` for interactive development and debugging.
+
 ```bash
 ./scripts/run_dev.sh bash
+./scripts/run_dev.sh python script.py
 ```
 
-### 6️⃣ Start developing (VS Code attachment)
-- Folder: `workspace/src`
+Mounted paths:
 
-### 7️⃣ Stop docker daemon
-```bash
-sudo systemctl stop docker
-sudo systemctl stop docker.socket
-```
+* Repository → `/workspace`
+* Datasets → `/data` (read-only)
+* Outputs → `/outputs`
 
-### Additional useful commands
-```bash
-sudo systemctl status docker # Check if docker is running
-sudo systemctl restart docker # Restart
-docker info # To see if daemon is responding
-docker images # Images info
-docker ps -a # Container info
-```
+This mode is suitable for rapid iteration and IDE attachment (e.g. VS Code).
 
 ---
 
-## ⚡ Quickstart (Resume Development)
+## Training Workflow
 
-### 1️⃣ Enter a container with interactive shell
-```bash
-./scripts/run_dev.sh bash
-```
-
-### 2️⃣ Start developing (VS Code attachment)
-- Folder: `workspace/src`
-
-### 3️⃣ Stop docker daemon
-```bash
-sudo systemctl stop docker
-sudo systemctl stop docker.socket
-```
-
----
-
-## 🛠️ Development Workflow
-
-Use **`run_dev.sh`** for debugging and fast iteration:
-
-```bash
-./scripts/run_dev.sh bash                  # Enter container with interactive shell (most common)
-./scripts/run_dev.sh python script.py      # Run a specific script
-```
-
-**Mount-binded points**
-- Repo → `/workspace`
-- Datasets → `/data` *(read-only)*
-- Outputs → `/outputs` *(mapped to host `./outputs`)*
-
----
-
-## 🧪 Training Workflow
-
-Use **`run_train.sh`** for long-running jobs on servers:
+Use `run_train.sh` for long-running, non-interactive jobs.
 
 ```bash
 ./scripts/run_train.sh python train.py
 ```
 
-**Differences**
-- Non-interactive
-- Uses `--ipc=host` for better multiprocessing performance
+Characteristics:
+
+* Non-interactive execution
+* Uses `--ipc=host` for improved multiprocessing performance
+* Intended for remote servers or unattended runs
 
 ---
 
-## 🐧 Docker Desktop (Linux) — Important Note
+## Managing Dependencies
 
-On Linux, reliable GPU support requires:
-- **Docker Engine**
-- **NVIDIA Container Toolkit**
+Project-level Python dependencies are defined in:
 
-⚠️ Docker Desktop for Linux runs inside a VM and may fail to expose:
-- CUDA
-- EGL / OpenGL
-
-This can break **Habitat-Sim** or **PyTorch GPU** execution.
-
----
-
-## ➕ Adding Python Dependencies
-
-Add project-level dependencies to:
 ```
 docker/project/requirements.txt
 ```
 
-Then:
+After modifying dependencies:
+
 ```bash
-git add docker/project/requirements.txt
-git commit -m "Add dependency: <name>"
+git commit -am "Update project dependencies"
 git push
 ```
 
-GitHub Actions will rebuild and push a new **habitat-project** image.
+CI will rebuild and publish a new project image. Update locally with:
 
-Update on any machine:
 ```bash
 docker pull ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-project:main
 ```
 
 ---
 
-## 📦 Datasets
+## Notes on Docker and GPUs (Linux)
 
-- Datasets are **not included** in Docker images
-- Must be downloaded/stored on each machine
-- Mounted via `DATA_DIR`
-
-
----
-
-## 🧯 Troubleshooting
-
-- ❌ **Docker can’t see GPU**  
-  → Install & configure NVIDIA Container Toolkit
-
-- ❌ **`import habitat_sim` fails**  
-  → Check host NVIDIA driver and container libraries  
-  → Run base image sanity check
-
-- 🔄 **Changed Dockerfiles or env specs**  
-  → Pull latest image or rebuild locally
+Reliable GPU support requires Docker Engine with the NVIDIA Container Toolkit.
+Docker Desktop for Linux runs inside a VM and may not correctly expose CUDA,
+EGL, or OpenGL, which can break Habitat-Sim or PyTorch GPU execution.
 
 ---
 
-✅ Happy experimenting!
+## Troubleshooting
+
+* **GPU not visible in container**: verify NVIDIA Container Toolkit installation
+* **`import habitat_sim` fails**: check driver compatibility and base image
+* **Unexpected behavior after dependency changes**: pull the latest image or rebuild locally
+
+---
+
+## Extending the Project
+
+* Add new algorithms, models, and training logic under `src/`
+* Define experiments and hyperparameters in `configs/`
+* Document scientific methodology and results alongside code
+
+The infrastructure is intended to remain stable while research components evolve.
