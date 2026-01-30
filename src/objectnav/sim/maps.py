@@ -1,7 +1,7 @@
 import numpy as np
 import habitat_sim
 from objectnav.sim.config import GridMapConfig
-from habitat.utils.visualizations import maps
+from habitat.utils.visualizations import maps as habitat_maps
 
 def build_grid_map_from_navmesh(sim: habitat_sim.Simulator) -> np.ndarray:
     """
@@ -28,6 +28,6 @@ def build_grid_map_from_navmesh(sim: habitat_sim.Simulator) -> np.ndarray:
     grid_map_config = GridMapConfig()
 
     # Generate the top-down map using Habitat's utility
-    topdown_map = maps.get_topdown_map(pathfinder, grid_map_config.height, grid_map_config.map_resolution, grid_map_config.draw_border)
+    topdown_map = habitat_maps.get_topdown_map(pathfinder, grid_map_config.height, grid_map_config.map_resolution, grid_map_config.draw_border)
 
     return topdown_map
