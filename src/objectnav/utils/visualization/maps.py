@@ -1,5 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import Optional, Sequence, Tuple, Union
+
+from objectnav.utils.spatial.rotations import quaternion_to_yaw
+from habitat.utils.visualizations import maps as habitat_maps
+
+Position3D = Union[Sequence[float], np.ndarray]
+GridCoord = Tuple[int, int]
 
 def plot_map(
 	grid_map: np.ndarray,
@@ -29,16 +36,114 @@ def plot_map(
 		ax (plt.Axes, optional): Matplotlib Axes to plot on. If None, creates a new figure.
 	"""
 	rgb_map = recolor_map(grid_map, palette)
-	if ax is None:
-		fig, ax = plt.subplots(figsize=figsize)
-	im = ax.imshow(rgb_map, origin="lower")
+	created_fig = ax is None
+	if created_fig:
+		_, ax = plt.subplots(figsize=figsize)
+	_ = ax.imshow(rgb_map, origin="lower")
 	if title:
 		ax.set_title(title)
 	if not show_axis:
 		ax.axis("off")
 	if save_path:
 		plt.savefig(save_path, bbox_inches="tight")
-	if ax is None or ax.figure is plt.gcf():
+	if created_fig:
+		plt.show()
+
+
+def plot_map_with_agent(
+	grid_map: np.ndarray,
+	agent_position: Union[Position3D, GridCoord],
+	agent_rotation: Optional[object] = None,
+	*,
+	sim: Optional[object] = None,
+	pathfinder: Optional[object] = None,
+	title: Optional[str] = None,
+	palette: np.ndarray = np.array(
+		[[255, 255, 255], [128, 128, 128], [0, 0, 0]], dtype=np.uint8
+	),
+	show_axis: bool = False,
+	save_path: Optional[str] = None,
+	figsize: Tuple[int, int] = (8, 8),
+	ax: Optional[plt.Axes] = None,
+	agent_radius_px: int = 5,
+) -> None:
+	"""Plot a labeled grid map with the agent composited on top.
+
+	Uses Habitat's visualization helpers:
+	- `habitat_maps.to_grid` to convert world (x, y, z) into map coordinates.
+	- `habitat_maps.draw_agent` to draw the agent marker + orientation.
+
+	Args:
+		grid_map: 2D int label map (e.g., from `habitat_maps.get_topdown_map`).
+		agent_position: Either a world position `[x, y, z]` or a grid coordinate `(row, col)`.
+		agent_rotation: Either a yaw angle in radians (float) or a quaternion-like
+			object with attributes `w,x,y,z` (e.g. `quaternion.quaternion`). If None,
+			yaw defaults to 0.
+		sim: Optional Habitat simulator. If provided, `sim.pathfinder` will be used.
+		pathfinder: Optional Habitat pathfinder. Required if `agent_position` is world
+			coordinates and `sim` is not provided.
+	"""
+	if grid_map.ndim != 2:
+		raise ValueError("grid_map must be a 2D array of integer labels.")
+
+	if pathfinder is None and sim is not None and hasattr(sim, "pathfinder"):
+		pathfinder = sim.pathfinder
+
+	# Convert position
+	agent_center: GridCoord
+	if isinstance(agent_position, tuple) and len(agent_position) == 2:
+		agent_center = (int(agent_position[0]), int(agent_position[1]))
+	elif isinstance(agent_position, (list, np.ndarray, tuple)) and len(agent_position) == 3:
+		if pathfinder is None and sim is None:
+			raise ValueError(
+				"agent_position looks like world coordinates; pass `sim=` or `pathfinder=` "
+				"so it can be converted via habitat_maps.to_grid()."
+			)
+		x, _, z = (float(agent_position[0]), float(agent_position[1]), float(agent_position[2]))
+		# Habitat uses (z, x) for topdown/grid conversions.
+		agent_center = tuple(
+			int(v)
+			for v in habitat_maps.to_grid(
+				z,
+				x,
+				(grid_map.shape[0], grid_map.shape[1]),
+				sim=sim,
+				pathfinder=pathfinder,
+			)
+		)
+	else:
+		raise ValueError(
+			"agent_position must be a grid coord (row, col) or a world position (x, y, z)."
+		)
+
+	# Convert rotation to yaw (radians)
+	if agent_rotation is None:
+		yaw_rad = 0.0
+	elif isinstance(agent_rotation, (int, float, np.floating)):
+		yaw_rad = float(agent_rotation)
+	else:
+		yaw_rad = float(quaternion_to_yaw(agent_rotation, degrees=False))
+
+	rgb_map = recolor_map(grid_map, palette)
+	# draw_agent modifies the image in-place; return value is the same array.
+	rgb_map = habitat_maps.draw_agent(
+		rgb_map,
+		agent_center_coord=agent_center,
+		agent_rotation=yaw_rad,
+		agent_radius_px=int(agent_radius_px),
+	)
+
+	created_fig = ax is None
+	if created_fig:
+		_, ax = plt.subplots(figsize=figsize)
+	_ = ax.imshow(rgb_map, origin="lower")
+	if title:
+		ax.set_title(title)
+	if not show_axis:
+		ax.axis("off")
+	if save_path:
+		plt.savefig(save_path, bbox_inches="tight")
+	if created_fig:
 		plt.show()
 
 
