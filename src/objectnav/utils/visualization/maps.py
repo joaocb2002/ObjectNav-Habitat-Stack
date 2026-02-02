@@ -12,7 +12,7 @@ def plot_map(
 	grid_map: np.ndarray,
 	title: str = None,
 	palette: np.ndarray = np.array(
-		[[255, 255, 255], [128, 128, 128], [0, 0, 0]], dtype=np.uint8
+		[[240, 240, 240], [128, 128, 128], [0, 0, 0]], dtype=np.uint8
 	),
 	show_axis: bool = False,
 	save_path: str = None,
@@ -39,7 +39,7 @@ def plot_map(
 	created_fig = ax is None
 	if created_fig:
 		_, ax = plt.subplots(figsize=figsize)
-	_ = ax.imshow(rgb_map, origin="lower")
+	_ = ax.imshow(rgb_map)
 	if title:
 		ax.set_title(title)
 	if not show_axis:
@@ -59,7 +59,7 @@ def plot_map_with_agent(
 	pathfinder: Optional[object] = None,
 	title: Optional[str] = None,
 	palette: np.ndarray = np.array(
-		[[255, 255, 255], [128, 128, 128], [0, 0, 0]], dtype=np.uint8
+		[[240, 240, 255], [128, 128, 128], [0, 0, 0]], dtype=np.uint8
 	),
 	show_axis: bool = False,
 	save_path: Optional[str] = None,
@@ -136,7 +136,7 @@ def plot_map_with_agent(
 	created_fig = ax is None
 	if created_fig:
 		_, ax = plt.subplots(figsize=figsize)
-	_ = ax.imshow(rgb_map, origin="lower")
+	_ = ax.imshow(rgb_map, origin="upper")
 	if title:
 		ax.set_title(title)
 	if not show_axis:
@@ -150,7 +150,7 @@ def plot_map_with_agent(
 def recolor_map(
 	label_map: np.ndarray,
 	palette: np.ndarray = np.array(
-		[[255, 255, 255], [128, 128, 128], [0, 0, 0]], dtype=np.uint8
+		[[240, 240, 240], [128, 128, 128], [0, 0, 0]], dtype=np.uint8
 	),
 ) -> np.ndarray:
 	"""
