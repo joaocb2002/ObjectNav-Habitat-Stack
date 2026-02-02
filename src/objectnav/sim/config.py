@@ -13,7 +13,7 @@ class SimConfig:
     # --- Simulation parameters ---
     scene_dataset_config: Optional[Path] = field(default=None, metadata={"help": "Path to scene dataset config file."})
     scene_id: Optional[str] = field(default=None, metadata={"help": "Scene ID to load."})
-    enable_physics: bool = field(default=False, metadata={"help": "Enable physics simulation."})
+    enable_physics: bool = field(default=True, metadata={"help": "Enable physics simulation."})
 
     # --- Sensor parameters ---
     obs_scale: float = field(default=9/16, metadata={"help": "Aspect ratio for observations (height/width)."})
@@ -41,7 +41,7 @@ class NavmeshConfig:
     # --- Navmesh parameters ---
     include_static_objects: bool = field(default=True, metadata={"help": "Include static objects in navmesh generation."})
     cell_size: float = field(default=0.05, metadata={"help": "Cell size for navmesh generation in meters."})
-    cell_height: float = field(default=0.1, metadata={"help": "Cell height for navmesh generation in meters."})
+    cell_height: float = field(default=0.05, metadata={"help": "Cell height for navmesh generation in meters."})
     filter_low_hanging_obstacles: bool = field(default=True, metadata={"help": "Filter low hanging obstacles during navmesh generation."})
     filter_ledge_spans: bool = field(default=True, metadata={"help": "Filter ledge spans during navmesh generation."})
     filter_walkable_low_height_spans: bool = field(default=True, metadata={"help": "Filter walkable low height spans during navmesh generation."})
