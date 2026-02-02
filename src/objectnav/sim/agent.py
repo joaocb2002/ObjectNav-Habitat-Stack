@@ -5,9 +5,9 @@ from typing import Optional, Sequence
 
 import numpy as np
 import habitat_sim
+import habitat
 
 from objectnav.utils.spatial.rotations import yaw_to_quaternion
-
 
 def init_agent(
     sim: habitat_sim.Simulator,
@@ -38,21 +38,35 @@ def init_agent(
 
     Raises:
         ValueError: If `position` is not length 3, if `yaw_degrees` is not finite,
-            or if the agent cannot stand at `position`.
-        RuntimeError: If sampling is requested but the pathfinder/navmesh is not loaded.
+            if the agent cannot stand at `position`, or if `position` is not on the
+            largest non-outdoor navmesh island.
+        RuntimeError: If the pathfinder/navmesh is not loaded, or if no valid
+            non-outdoor island can be found for placement.
     """
     if not hasattr(sim, "pathfinder"):
         raise AttributeError("Simulator does not have a pathfinder attribute.")
 
-    # If we're going to sample from the navmesh, make sure it exists/loaded.
-    if position is None and hasattr(sim.pathfinder, "is_loaded") and not sim.pathfinder.is_loaded:
+    largest_island_index = habitat.datasets.rearrange.navmesh_utils.get_largest_island_index(
+        sim.pathfinder,
+        sim,
+        allow_outdoor=False,
+    )
+    if largest_island_index is None or int(largest_island_index) < 0:
         raise RuntimeError(
-            "Pathfinder/navmesh is not loaded. Compute/load a navmesh before calling init_agent() "
-            "with position=None."
+            "Could not determine a valid non-outdoor navmesh island for placement "
+            f"(got {largest_island_index})."
         )
+    largest_island_index = int(largest_island_index)
 
     if position is None:
-        position_arr = np.asarray(sim.pathfinder.get_random_navigable_point(), dtype=np.float32)
+        # Sample directly from the selected island to avoid outdoor regions.
+        position_arr = np.asarray(
+            sim.pathfinder.get_random_navigable_point(
+                max_tries=100,
+                island_index=largest_island_index,
+            ),
+            dtype=np.float32,
+        )
     else:
         position_arr = np.asarray(position, dtype=np.float32)
 
@@ -61,6 +75,13 @@ def init_agent(
 
     if not sim.pathfinder.is_navigable(position_arr):
         raise ValueError(f"position {position_arr.tolist()} is not navigable")
+
+    position_island_index = int(sim.pathfinder.get_island(position_arr))
+    if position_island_index != largest_island_index:
+        raise ValueError(
+            "position is on a different navmesh island than the largest non-outdoor island "
+            f"(position island={position_island_index}, expected={largest_island_index})"
+        )
 
     if yaw_degrees is None:
         # Uniform in [-180, 180) without ever returning 180.
