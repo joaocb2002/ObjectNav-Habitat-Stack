@@ -207,3 +207,15 @@ EGL, or OpenGL, which can break Habitat-Sim or PyTorch GPU execution.
 * Document scientific methodology and results alongside code
 
 The infrastructure is intended to remain stable while research components evolve.
+
+---
+
+## Useful command
+
+For inspecting a digital scene visually, run the following command:
+```bash
+habitat-viewer --dataset /path/to/<scene_dataset_config>.json <scene_name>
+# example:
+# habitat-viewer --dataset /data/ai2thor-hab.scene_dataset_config.json FloorPlan1_physics
+```
+
