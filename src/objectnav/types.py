@@ -12,16 +12,14 @@ if TYPE_CHECKING:
 
 QuaternionLike = Union["quaternion.quaternion", Sequence[float], Mapping[str, float]]
 ScalarLike = Union[int, float, np.floating]
-Vector3Like = Union[Sequence[float], np.ndarray, "mn.Vector3", "magnum.Vector3"]
-PositionLike = Vector3Like
-Position3D = Union[Sequence[float], np.ndarray]
+Vector3DLike = Union[Sequence[float], np.ndarray, "mn.Vector3"]
+Position3DLike = Union[Sequence[float], np.ndarray]
 GridCoord = Tuple[int, int]
 
 __all__ = [
-    "GridCoord",
-    "Position3D",
-    "PositionLike",
     "QuaternionLike",
     "ScalarLike",
-    "Vector3Like",
+    "Vector3DLike",
+    "Position3DLike",
+    "GridCoord",
 ]
