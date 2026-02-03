@@ -34,6 +34,7 @@ class SimulatorWrapper:
         sim_cfg.scene_dataset_config_file = str(sim_config.scene_dataset_config)
         sim_cfg.scene_id = sim_config.scene_id
         sim_cfg.enable_physics = sim_config.enable_physics
+        sim_cfg.allow_sliding = sim_config.allow_sliding
 
         # Agents sensor and action space (no geometry needed here)
         sensors = {
