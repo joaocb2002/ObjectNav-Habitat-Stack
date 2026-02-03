@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Tuple, Union
 
-from objectnav.utils.spatial.rotations import quaternion_to_yaw
 from habitat.utils.visualizations import maps as habitat_maps
 
-Position3D = Union[Sequence[float], np.ndarray]
-GridCoord = Tuple[int, int]
+from objectnav.constants import CAMERA_DEFAULT_DIRECTION
+from objectnav.types import Grid2DCoord, Position3DLike, QuaternionLike, ScalarLike
+from objectnav.utils.spatial.rotations import rotation_to_yaw
 
 def plot_map(
 	grid_map: np.ndarray,
@@ -52,8 +52,8 @@ def plot_map(
 
 def plot_map_with_agent(
 	grid_map: np.ndarray,
-	agent_position: Union[Position3D, GridCoord],
-	agent_rotation: Optional[object] = None,
+	agent_position: Union[Position3DLike, Grid2DCoord],
+	agent_rotation: Union[ScalarLike, QuaternionLike],
 	*,
 	sim: Optional[object] = None,
 	pathfinder: Optional[object] = None,
@@ -76,9 +76,10 @@ def plot_map_with_agent(
 	Args:
 		grid_map: 2D int label map (e.g., from `habitat_maps.get_topdown_map`).
 		agent_position: Either a world position `[x, y, z]` or a grid coordinate `(row, col)`.
-		agent_rotation: Either a yaw angle in radians (float) or a quaternion-like
-			object with attributes `w,x,y,z` (e.g. `quaternion.quaternion`). If None,
-			yaw defaults to 0.
+		agent_rotation: Either a yaw angle in radians (int/float/np.floating) using
+			Habitat's convention (yaw=0 facing -Z), or a quaternion-like object with
+			attributes `w,x,y,z`, a length-4 sequence, or a mapping with keys
+			`w,x,y,z`.
 		sim: Optional Habitat simulator. If provided, `sim.pathfinder` will be used.
 		pathfinder: Optional Habitat pathfinder. Required if `agent_position` is world
 			coordinates and `sim` is not provided.
@@ -90,7 +91,7 @@ def plot_map_with_agent(
 		pathfinder = sim.pathfinder
 
 	# Convert position
-	agent_center: GridCoord
+	agent_center: Grid2DCoord
 	if isinstance(agent_position, tuple) and len(agent_position) == 2:
 		agent_center = (int(agent_position[0]), int(agent_position[1]))
 	elif isinstance(agent_position, (list, np.ndarray, tuple)) and len(agent_position) == 3:
@@ -116,13 +117,28 @@ def plot_map_with_agent(
 			"agent_position must be a grid coord (row, col) or a world position (x, y, z)."
 		)
 
-	# Convert rotation to yaw (radians)
-	if agent_rotation is None:
-		yaw_rad = 0.0
-	elif isinstance(agent_rotation, (int, float, np.floating)):
-		yaw_rad = float(agent_rotation)
+	# Determine yaw_rad (Habitat draw_agent expects yaw in radians)
+	if isinstance(agent_rotation, (int, float, np.floating)):
+		# Scalar yaw is assumed to be in degrees with 0 along -Z; convert to +Z.
+		yaw_rad = float(
+			rotation_to_yaw(
+				agent_rotation,
+				degrees=False,
+				scalar_is_degrees=True,
+				scalar_offset_degrees=180.0,
+				normalize=True,
+			)
+		)
 	else:
-		yaw_rad = float(quaternion_to_yaw(agent_rotation, degrees=False))
+		# Quaternion: rotate camera forward then convert to yaw.
+		yaw_rad = float(
+			rotation_to_yaw(
+				agent_rotation,
+				degrees=False,
+				initial_forward=CAMERA_DEFAULT_DIRECTION,
+				normalize=True,
+			)
+		)
 
 	rgb_map = recolor_map(grid_map, palette)
 	# draw_agent modifies the image in-place; return value is the same array.
@@ -136,7 +152,7 @@ def plot_map_with_agent(
 	created_fig = ax is None
 	if created_fig:
 		_, ax = plt.subplots(figsize=figsize)
-	_ = ax.imshow(rgb_map, origin="upper")
+	_ = ax.imshow(rgb_map)
 	if title:
 		ax.set_title(title)
 	if not show_axis:
