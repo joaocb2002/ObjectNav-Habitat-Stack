@@ -14,12 +14,12 @@ QuaternionLike = Union["quaternion.quaternion", Sequence[float], Mapping[str, fl
 ScalarLike = Union[int, float, np.floating]
 Vector3DLike = Union[Sequence[float], np.ndarray, "mn.Vector3"]
 Position3DLike = Union[Sequence[float], np.ndarray]
-GridCoord = Tuple[int, int]
+Grid2DCoord = Tuple[int, int]
 
 __all__ = [
     "QuaternionLike",
     "ScalarLike",
     "Vector3DLike",
     "Position3DLike",
-    "GridCoord",
+    "Grid2DCoord",
 ]
