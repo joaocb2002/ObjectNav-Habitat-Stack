@@ -6,6 +6,9 @@ on:
     paths:
       - "docker/project/**"
       - ".github/workflows/build-project.yml"
+  workflow_run:
+    workflows: ["Build and push habitat-base"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -14,20 +17,63 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: joaocb2002/object-nav-habitat/habitat-project
+  IMAGE_NAME: ${{ github.repository }}/habitat-project
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    if: >-
+      ${
+        github.event_name != 'workflow_run' ||
+        (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+      }
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Skip push build if base changed
+        if: github.event_name == 'push'
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+
+          # If the base inputs changed in the same push, let the workflow_run-triggered build handle it
+          # after the base image is published (avoids duplicate/racy builds).
+          if git diff --name-only "$BEFORE" "$AFTER" | grep -qE '^(docker/base/|\.github/workflows/build-base\.yml)$'; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compute build variables
+        id: vars
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            BUILD_SHA="${{ github.event.workflow_run.head_sha }}"
+            BASE_IMAGE="${{ env.REGISTRY }}/${{ github.repository }}/habitat-base:sha-${{ github.event.workflow_run.head_sha }}"
+          else
+            BUILD_SHA="${{ github.sha }}"
+            BASE_IMAGE="${{ env.REGISTRY }}/${{ github.repository }}/habitat-base:main"
+          fi
+
+          echo "sha=${BUILD_SHA}" >> "$GITHUB_OUTPUT"
+          echo "base_image=${BASE_IMAGE}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
+        if: github.event_name != 'push' || steps.gate.outputs.skip != 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
+        if: github.event_name != 'push' || steps.gate.outputs.skip != 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -35,11 +81,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push project image
+        if: github.event_name != 'push' || steps.gate.outputs.skip != 'true'
         uses: docker/build-push-action@v6
         with:
           context: docker/project
           file: docker/project/Dockerfile
+          pull: true
           push: true
+          build-args: |
+            BASE_IMAGE=${{ steps.vars.outputs.base_image }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ steps.vars.outputs.sha }}
