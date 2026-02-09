@@ -212,10 +212,10 @@ The infrastructure is intended to remain stable while research components evolve
 
 ## Useful command
 
-For inspecting a digital scene visually, run the following command:
+For inspecting a digital scene visually, run the following command in a habitat conda env:
 ```bash
 habitat-viewer --dataset /path/to/<scene_dataset_config>.json <scene_name>
-# example:
+# example: from repo root
 # habitat-viewer --dataset datasets/ai2thor-hab/ai2thor-hab/ai2thor-hab.scene_dataset_config.json FloorPlan1_physics
 ```
 
