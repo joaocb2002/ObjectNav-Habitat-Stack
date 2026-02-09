@@ -66,10 +66,10 @@ This separation reduces rebuild time and improves reproducibility.
 ## Published Images (GHCR)
 
 * Base image:
-  `ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-base`
+  `ghcr.io/joaocb2002/object-nav-habitat/habitat-base`
 
 * Project image:
-  `ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-project`
+  `ghcr.io/joaocb2002/object-nav-habitat/habitat-project`
 
 ### Tags
 
@@ -114,7 +114,7 @@ cd object-nav-habitat
 ### Pull the Project Image
 
 ```bash
-docker pull ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-project:main
+docker pull ghcr.io/joaocb2002/object-nav-habitat/habitat-project:main
 ```
 
 ### Sanity Check
@@ -179,7 +179,7 @@ git push
 CI will rebuild and publish a new project image. Update locally with:
 
 ```bash
-docker pull ghcr.io/joaocb2002/object-nav-habitat-stack/habitat-project:main
+docker pull ghcr.io/joaocb2002/object-nav-habitat/habitat-project:main
 ```
 
 ---
