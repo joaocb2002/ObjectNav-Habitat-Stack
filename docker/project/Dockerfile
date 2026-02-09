@@ -1,5 +1,6 @@
 # 1) Start from your already-built base image (see ../habitat-base/Dockerfile)
-FROM ghcr.io/joaocb2002/object-nav-habitat/habitat-base:main 
+ARG BASE_IMAGE=ghcr.io/joaocb2002/object-nav-habitat/habitat-base:main
+FROM ${BASE_IMAGE}
 
 # 2) Copy project requirements
 COPY requirements.txt /tmp/requirements.txt

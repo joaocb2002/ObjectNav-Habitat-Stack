@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget curl git ca-certificates build-essential \
     libglib2.0-0 libsm6 libxext6 libxrender1 \
     libopengl0 libglvnd0 libgl1 libegl1 libglx0 libgles2 \
+    cuda-nvrtc-dev-11-8 \
     && rm -rf /var/lib/apt/lists/*
 
 # Add the NVIDIA EGL vendor entry so GLVND can route EGL calls to the NVIDIA driver at runtime. Juts like in Habitat-Challenge dockerfiles.
