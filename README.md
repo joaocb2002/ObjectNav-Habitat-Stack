@@ -216,6 +216,6 @@ For inspecting a digital scene visually, run the following command:
 ```bash
 habitat-viewer --dataset /path/to/<scene_dataset_config>.json <scene_name>
 # example:
-# habitat-viewer --dataset /data/ai2thor-hab.scene_dataset_config.json FloorPlan1_physics
+# habitat-viewer --dataset datasets/ai2thor-hab/ai2thor-hab/ai2thor-hab.scene_dataset_config.json FloorPlan1_physics
 ```
 
