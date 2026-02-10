@@ -9,6 +9,7 @@ from ultralytics import YOLO
 
 from objectnav.perception.config import YoloConfig
 from objectnav.perception.detections import Detection
+from objectnav.perception.patches import apply_yolo_softmax_patch
 
 
 class YOLODetector:
@@ -18,6 +19,8 @@ class YOLODetector:
         self._resolved_device: Optional[str] = None
 
     def load(self) -> None:
+        if self.config.use_softmax_patch:
+            apply_yolo_softmax_patch(temperature=self.config.softmax_temperature)
         self._model = YOLO(self.config.weights_path_str())
         self._resolved_device = self._resolve_device()
 
@@ -42,7 +45,7 @@ class YOLODetector:
             max_det=self.config.max_det,
         )
 
-        # results is a list-like; take first image
+        # results is a list-like; take first image results (should only be one since we passed a single image)
         r0 = results[0]
         return r0
     
@@ -74,8 +77,11 @@ class YOLODetector:
         xyxy = boxes.xyxy.cpu().numpy()
         conf = boxes.conf.cpu().numpy().reshape(-1)
         cls = boxes.cls.cpu().numpy().astype(int).reshape(-1)
-        # probs = boxes.probs
-        # prob_vectors = probs.cpu().numpy() if probs is not None else None
+        prob_vectors = (
+            boxes.probs.cpu().numpy()
+            if self.config.use_softmax_patch and boxes.probs is not None
+            else None
+        )
 
         names = results.names if results.names is not None else {}
         image_area = float(image.shape[0] * image.shape[1])
@@ -91,10 +97,10 @@ class YOLODetector:
             det_area = max(0.0, x2 - x1) * max(0.0, y2 - y1)
             scale = det_area / image_area if image_area > 0.0 else 0.0
             det_probs: Optional[Tuple[float, ...]]
-            # if prob_vectors is not None:
-            #     det_probs = tuple(float(p) for p in prob_vectors[i].tolist())
-            # else:
-            #     det_probs = None
+            if prob_vectors is not None:
+                det_probs = tuple(float(p) for p in prob_vectors[i].tolist())
+            else:
+                det_probs = None
             cls_id = int(cls[i])
             cls_name = str(names.get(cls_id, cls_id))
             dets.append(
@@ -104,7 +110,7 @@ class YOLODetector:
                     conf=float(conf[i]),
                     xyxy=(x1, y1, x2, y2),
                     scale=scale,
-                    # probs=det_probs,
+                    probs=det_probs,
                 )
             )
         return dets
