@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Sequence, Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -56,39 +56,29 @@ def _normalize_depth(
     return (depth * 255.0).astype(np.uint8)
 
 
-def display_observations(
+def save_rgbd_observations(
     rgb_obs: np.ndarray,
     depth_obs: np.ndarray,
+    save_path: str,
     *,
     figsize: Tuple[int, int] = (8, 5),
     show_axis: bool = False,
-    save_path: Optional[str] = None,
     depth_clip: Optional[Tuple[float, float]] = (0.0, 10.0),
     depth_cmap: str = "gray",
-    ax: Optional[Sequence[plt.Axes]] = None,
 ) -> None:
-    """Display RGB and depth observations side-by-side.
+    """Save RGB and depth observations side-by-side to a file.
 
     Args:
         rgb_obs: RGB(A) image from the agent's RGB sensor (HxWx3 or HxWx4).
         depth_obs: Depth image as a 2D array of float distances in meters.
+        save_path: Path where the figure will be saved.
         figsize: Figure size used when creating a new figure.
         show_axis: Whether to show axis ticks/labels. Default is False.
-        save_path: If provided, saves the plot to this path.
         depth_clip: Min/max depth range (meters) for visualization. If None, uses
             min/max in the observation.
         depth_cmap: Matplotlib colormap for depth display.
-        ax: Optional sequence of two Matplotlib Axes to plot on. If None, creates
-            a new figure.
     """
-    if ax is None:
-        _, axes = plt.subplots(1, 2, figsize=figsize)
-        created_fig = True
-    else:
-        if len(ax) != 2:
-            raise ValueError("ax must be a sequence of two Matplotlib Axes.")
-        axes = ax
-        created_fig = False
+    _, axes = plt.subplots(1, 2, figsize=figsize)
 
     rgb_vis = _normalize_rgb(rgb_obs)
     rgb_mode = "RGBA" if rgb_vis.shape[2] == 4 else "RGB"
@@ -106,7 +96,5 @@ def display_observations(
         axes[1].axis("off")
 
     plt.tight_layout()
-    if save_path:
-        plt.savefig(save_path, bbox_inches="tight")
-    if created_fig:
-        plt.show()
+    plt.savefig(save_path, bbox_inches="tight")
+    plt.close()
