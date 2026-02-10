@@ -21,8 +21,8 @@ class YOLODetector:
         self._model = YOLO(self.config.weights_path_str())
         self._resolved_device = self._resolve_device()
 
-    def detect(self, image: np.ndarray) -> Tuple[List[Detection], "Results"]:
-        """Run inference and parse detections from a single image."""
+    def detect(self, image: np.ndarray) -> "Results":
+        """Run inference and return raw YOLO results for a single image."""
         if self._model is None:
             raise RuntimeError("YOLODetector not loaded. Call .load() first.")
         
@@ -44,8 +44,7 @@ class YOLODetector:
 
         # results is a list-like; take first image
         r0 = results[0]
-        detections = self._parse_results(r0, image)
-        return detections, r0
+        return r0
     
     def _resolve_device(self) -> str:
         # If user asked for CPU, respect it.
@@ -66,7 +65,8 @@ class YOLODetector:
             warnings.warn(f"CUDA appears unusable with this PyTorch build; falling back to CPU. ({e})")
             return "cpu"
 
-    def _parse_results(self, results: "Results", image: np.ndarray) -> List[Detection]:
+    def parse_detections(self, results: "Results", image: np.ndarray) -> List[Detection]:
+        """Parse a YOLO Results object into structured detections."""
         boxes = results.boxes  # patched Boxes class should be active
         if boxes is None or len(boxes) == 0:
             return []
