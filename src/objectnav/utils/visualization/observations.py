@@ -59,8 +59,8 @@ def _normalize_depth(
 def save_rgbd_observations(
     rgb_obs: np.ndarray,
     depth_obs: np.ndarray,
-    save_path: str,
     *,
+    save_path: str,
     figsize: Tuple[int, int] = (8, 5),
     show_axis: bool = False,
     depth_clip: Optional[Tuple[float, float]] = (0.0, 10.0),

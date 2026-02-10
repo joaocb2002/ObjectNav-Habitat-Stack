@@ -49,8 +49,8 @@ def save_map_with_agent(
 	grid_map: np.ndarray,
 	agent_position: Union[Position3DLike, Grid2DCoord],
 	agent_rotation: Union[ScalarLike, QuaternionLike],
-	save_path: str,
 	*,
+	save_path: str,
 	sim: Optional[object] = None,
 	pathfinder: Optional[object] = None,
 	title: Optional[str] = None,
@@ -75,8 +75,7 @@ def save_map_with_agent(
 			attributes `w,x,y,z`, a length-4 sequence, or a mapping with keys
 			`w,x,y,z`.
 		sim: Optional Habitat simulator. If provided, `sim.pathfinder` will be used.
-		pathfinder: Optional Habitat pathfinder. Required if `agent_position` is world
-			coordinates and `sim` is not provided.
+		pathfinder: Optional[object] = None,
 	"""
 	if grid_map.ndim != 2:
 		raise ValueError("grid_map must be a 2D array of integer labels.")
