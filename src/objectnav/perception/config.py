@@ -24,12 +24,22 @@ class YoloConfig:
     iou: float = field(default=0.50, metadata={"help": "IoU threshold for NMS."})
     imgsz: Tuple[int, int] = field(
         default=(576, 1024),
-        metadata={"help": "(height, width) for inference. None uses model default."},
+        metadata={"help": "Image (height, width) for inference."},
     )
     rect: bool = field(default=True, metadata={"help": "Enable rectangular inference."})
     half: bool = field(default=False, metadata={"help": "Use half precision when supported."})
     max_det: int = field(default=30, metadata={"help": "Maximum detections per image."})
     verbose: bool = field(default=False, metadata={"help": "Enable per-inference logging."})
+
+    # --- Patches ---
+    use_softmax_patch: bool = field(
+        default=False,
+        metadata={"help": "Apply softmax patch to expose class probabilities."},
+    )
+    softmax_temperature: float = field(
+        default=2.4,
+        metadata={"help": "Softmax temperature for class probabilities."},
+    )
 
     def weights_path_str(self) -> str:
         return str(self.weights_path)
