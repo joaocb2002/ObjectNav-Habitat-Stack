@@ -7,13 +7,12 @@ from objectnav.sim.simulator import make_sim
 from objectnav.sim.navmesh import compute_navmesh
 from objectnav.sim.maps import build_grid_map_from_navmesh
 from objectnav.utils.spatial.rotations import rotation_to_yaw
-from objectnav.utils.visualization.maps import plot_map_with_agent
-from objectnav.utils.visualization.observations import plot_observations
+from objectnav.utils.visualization.maps import save_map_with_agent
+from objectnav.utils.visualization.observations import save_rgbd_observations
 from objectnav.utils.visualization.detections import save_yolo_detections_plot
 from objectnav.perception.config import YoloConfig
-from objectnav.perception.pipeline import build_yolo_detector, run_yolo_inference
+from objectnav.perception.pipeline import build_yolo_detector, run_yolo_detections
 
-import numpy as np
 
 def main():
     # Pick a fixed seed (or read from CLI/env)
@@ -25,7 +24,7 @@ def main():
     yolo_config = YoloConfig(
         weights_path=Path("datasets/models/yolo11x.pt"),
         device=device,
-        verbose=True,
+        use_softmax_patch=True
     )
     yolo_detector = build_yolo_detector(yolo_config)
 
@@ -45,8 +44,6 @@ def main():
 
     # Initialize the (only) agent: configuration was made in simulator creation
     agent = init_agent(simulator.sim)
-    agent_state = agent.get_state()
-    print("\nAgent_state: position", type(agent_state.position) , agent_state.position, "rotation", type(agent_state.rotation), agent_state.rotation)
     
     # Select action space
     action_names = list(simulator.cfg.agents[0].action_space.keys())
@@ -63,29 +60,23 @@ def main():
 
         print("Action:", action)
         print("Collided:", collided)
-        print("Agent_state: position", type(agent_state.position) , agent_state.position, "rotation", type(agent_state.rotation), agent_state.rotation) 
-        plot_observations(rgb, depth, save_path=f"outputs/observations_step_{i+1}.png")
-        plot_map_with_agent(
+        print("Agent_state: position", agent_state.position, "yaw", rotation_to_yaw(agent_state.rotation)) 
+        save_rgbd_observations(rgb, depth, save_path=f"outputs/observations_step_{i+1}.png")
+        save_map_with_agent(
             grid_map,
             agent_state.position,
             agent_state.rotation,
+            save_path=f"outputs/grid_map_with_agent_step_{i+1}.png",
             sim=simulator.sim,
             title="Grid Map + Agent",
-            save_path=f"outputs/grid_map_with_agent_step_{i+1}.png",
             agent_radius_px=20,
         )
         
-        # Print the 4th channel of the RGB: max, min, mean, and unique values to understand what it represents
-        if rgb.shape[2] > 3:
-            print("4th channel stats - max:", rgb[:,:,3].max(), "min:", rgb[:,:,3].min(), "mean:", rgb[:,:,3].mean(), "unique values:", np.unique(rgb[:,:,3]))
+        # Run YOLO. Our images are in RGB format, but YOLO expects BGR for numpy input
+        detections, yolo_result = run_yolo_detections(yolo_detector,rgb,input_color="rgb")
 
-        detections, yolo_results = run_yolo_inference(
-            yolo_detector,
-            rgb[:,:,:3], # discard transparency channel 
-            input_color="rgb", # our images are in RGB format, but YOLO expects BGR for numpy input
-        )
         save_yolo_detections_plot(
-            yolo_results,
+            yolo_result,
             save_path=f"outputs/detections_step_{i+1}.png",
             show_conf=True,
             show_labels=True,
@@ -94,8 +85,15 @@ def main():
 
         print("Detections:")
         for det in detections:
+            xyxy_fmt = "(" + ", ".join(f"{v:.2f}" for v in det.xyxy) + ")"
+            probs_fmt = (
+                "(" + ", ".join(f"{v:.3f}" for v in det.probs) + ")"
+                if det.probs is not None
+                else "N/A"
+            )
             print(
-                f"Class: {det.cls_name}, Confidence: {det.conf:.2f}, Box: {det.xyxy}, Scale: {det.scale:.2f}"
+                f"Class: {det.cls_name}, Confidence: {det.conf:.2f}, Box: {xyxy_fmt}, Scale: {det.scale:.2f},"
+                f"\n Probs: {probs_fmt}"
             )
 
 
