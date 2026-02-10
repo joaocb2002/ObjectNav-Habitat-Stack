@@ -4,56 +4,52 @@ from typing import Optional, Tuple, Union
 
 from habitat.utils.visualizations import maps as habitat_maps
 
-from objectnav.constants import CAMERA_DEFAULT_DIRECTION
+from objectnav.constants import CAMERA_DEFAULT_DIRECTION, CAMERA_DEFAULT_YAW_OFFSET_DEGREES
 from objectnav.types import Grid2DCoord, Position3DLike, QuaternionLike, ScalarLike
 from objectnav.utils.spatial.rotations import rotation_to_yaw
 
-def plot_map(
+def save_map(
 	grid_map: np.ndarray,
-	title: str = None,
+	save_path: str,
+	*,
+	title: Optional[str] = None,
 	palette: np.ndarray = np.array(
 		[[240, 240, 240], [128, 128, 128], [0, 0, 0]], dtype=np.uint8
 	),
 	show_axis: bool = False,
-	save_path: str = None,
-	figsize: tuple = (8, 8),
-	ax: plt.Axes = None,
+	figsize: Tuple[int, int] = (8, 8),
 ) -> None:
 	"""
-	Plot a 2D grid map (numpy array) as an RGB image using a color palette.
+	Save a 2D grid map (numpy array) as an RGB image using a color palette.
 
 	The input map should be a 2D array of integer labels (e.g., 0=occupied, 1=unoccupied, 2=border).
-	The function recolors the map to a 3D RGB image using the provided palette and displays it.
+	The function recolors the map to a 3D RGB image using the provided palette and saves it.
 
 	Args:
 		grid_map (np.ndarray): 2D array representing the map (integer labels).
+		save_path (str): Path where the figure will be saved.
 		title (str, optional): Title for the plot.
 		palette (np.ndarray, optional): Array of shape (N, 3) with RGB values for each label.
 			Default: white for 0, gray for 1, black for 2.
 		show_axis (bool, optional): Whether to show axis ticks/labels. Default is False.
-		save_path (str, optional): If provided, saves the plot to this path.
 		figsize (tuple, optional): Figure size. Default is (8, 8).
-		ax (plt.Axes, optional): Matplotlib Axes to plot on. If None, creates a new figure.
 	"""
 	rgb_map = recolor_map(grid_map, palette)
-	created_fig = ax is None
-	if created_fig:
-		_, ax = plt.subplots(figsize=figsize)
+	_, ax = plt.subplots(figsize=figsize)
 	_ = ax.imshow(rgb_map)
 	if title:
 		ax.set_title(title)
 	if not show_axis:
 		ax.axis("off")
-	if save_path:
-		plt.savefig(save_path, bbox_inches="tight")
-	if created_fig:
-		plt.show()
+	plt.savefig(save_path, bbox_inches="tight")
+	plt.close()
 
 
-def plot_map_with_agent(
+def save_map_with_agent(
 	grid_map: np.ndarray,
 	agent_position: Union[Position3DLike, Grid2DCoord],
 	agent_rotation: Union[ScalarLike, QuaternionLike],
+	save_path: str,
 	*,
 	sim: Optional[object] = None,
 	pathfinder: Optional[object] = None,
@@ -62,12 +58,10 @@ def plot_map_with_agent(
 		[[240, 240, 255], [128, 128, 128], [0, 0, 0]], dtype=np.uint8
 	),
 	show_axis: bool = False,
-	save_path: Optional[str] = None,
 	figsize: Tuple[int, int] = (8, 8),
-	ax: Optional[plt.Axes] = None,
 	agent_radius_px: int = 5,
 ) -> None:
-	"""Plot a labeled grid map with the agent composited on top.
+	"""Save a labeled grid map with the agent composited on top.
 
 	Uses Habitat's visualization helpers:
 	- `habitat_maps.to_grid` to convert world (x, y, z) into map coordinates.
@@ -125,7 +119,7 @@ def plot_map_with_agent(
 				agent_rotation,
 				degrees=False,
 				scalar_is_degrees=True,
-				scalar_offset_degrees=180.0,
+				scalar_offset_degrees=CAMERA_DEFAULT_YAW_OFFSET_DEGREES,
 				normalize=True,
 			)
 		)
@@ -149,18 +143,14 @@ def plot_map_with_agent(
 		agent_radius_px=int(agent_radius_px),
 	)
 
-	created_fig = ax is None
-	if created_fig:
-		_, ax = plt.subplots(figsize=figsize)
+	_, ax = plt.subplots(figsize=figsize)
 	_ = ax.imshow(rgb_map)
 	if title:
 		ax.set_title(title)
 	if not show_axis:
 		ax.axis("off")
-	if save_path:
-		plt.savefig(save_path, bbox_inches="tight")
-	if created_fig:
-		plt.show()
+	plt.savefig(save_path, bbox_inches="tight")
+	plt.close()
 
 
 def recolor_map(
