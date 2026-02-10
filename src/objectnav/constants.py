@@ -12,6 +12,8 @@ from typing import Final, Tuple, FrozenSet
 # Local agent forward direction in Habitat (default): -Z.
 CAMERA_DEFAULT_DIRECTION: Final[Tuple[float, float, float]] = (0.0, 0.0, -1.0)
 AGENT_DEFAULT_DIRECTION: Final[Tuple[float, float, float]] = (0.0, 0.0, 1.0)
+CAMERA_DEFAULT_YAW_OFFSET_DEGREES: Final[float] = 180.0  # to convert from camera forward to agent forward
+
 
 # --- Simulation parameters ---
 CONFIDENCE_THRESHOLD: Final[float] = 0.80
@@ -59,4 +61,5 @@ __all__ = [
     "MAX_ITER_COEF",
     "NUM_EPOCHS",
     "PSEUDO_COUNT_THRESHOLD",
+    "CAMERA_DEFAULT_YAW_OFFSET_DEGREES",
 ]
