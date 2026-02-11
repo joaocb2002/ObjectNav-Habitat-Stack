@@ -169,6 +169,31 @@ Project-level Python dependencies are defined in:
 docker/project/requirements.txt
 ```
 
+Lockfiles (required for reproducibility):
+
+* docker/base/conda-lock.yml — exact conda environment for the base image
+* docker/project/requirements.lock — exact pip environment for the project image
+
+**Update workflow**
+
+* If you change docker/base/environment.yml, regenerate docker/base/conda-lock.yml and rebuild the base image.
+* If you change docker/project/requirements.txt, regenerate docker/project/requirements.lock and rebuild the project image.
+
+Lockfile generation commands:
+
+```bash
+conda-lock -f docker/base/environment.yml -p linux-64 --lockfile docker/base/conda-lock.yml
+```
+
+```bash
+pip-compile --generate-hashes --resolver=backtracking --output-file docker/project/requirements.lock docker/project/requirements.txt
+```
+
+**Build behavior**
+
+* Base image installs from docker/base/conda-lock.yml.
+* Project image installs from docker/project/requirements.lock with hashes enforced.
+
 After modifying dependencies:
 
 ```bash
