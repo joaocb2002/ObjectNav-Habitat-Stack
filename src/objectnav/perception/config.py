@@ -20,8 +20,8 @@ class YoloConfig:
     device: str = field(default="cuda:0", metadata={"help": "Torch device specifier."})
 
     # --- Inference parameters ---
-    conf: float = field(default=0.25, metadata={"help": "Confidence threshold."})
-    iou: float = field(default=0.50, metadata={"help": "IoU threshold for NMS."})
+    conf: float = field(default=0.45, metadata={"help": "Confidence threshold."})
+    iou: float = field(default=0.35, metadata={"help": "IoU threshold for NMS."})
     imgsz: Tuple[int, int] = field(
         default=(576, 1024),
         metadata={"help": "Image (height, width) for inference."},
