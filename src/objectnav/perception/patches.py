@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 import torch
 import torchvision
 
@@ -23,8 +21,17 @@ def apply_yolo_softmax_patch(*, temperature: float = 2.4) -> None:
 
 	import ultralytics.engine.results as results_mod
 	import ultralytics.utils.ops as ops_mod
+	from ultralytics.nn.modules.head import Detect
 	from ultralytics.models.yolo.detect.predict import DetectionPredictor
 	from ultralytics.utils.ops import convert_torch2numpy_batch, scale_boxes
+
+	# Patch Detect._inference to return raw logits (remove sigmoid)
+	def _inference_no_sigmoid(self, x):
+		"""Decode boxes and return raw class logits (no sigmoid)."""
+		dbox = self._get_decode_boxes(x)
+		return torch.cat((dbox, x["scores"]), 1)
+
+	Detect._inference = _inference_no_sigmoid
 
 	# Load original Boxes class
 	OriginalBoxes = results_mod.Boxes
@@ -87,6 +94,7 @@ def apply_yolo_softmax_patch(*, temperature: float = 2.4) -> None:
 		rotated=False,
 		end2end=False,
 	):
+		# multi_label, max_time_img, end2end are kept for signature compatibility
 		assert 0 <= conf_thres <= 1
 		assert 0 <= iou_thres <= 1
 
@@ -100,7 +108,11 @@ def apply_yolo_softmax_patch(*, temperature: float = 2.4) -> None:
 		nc = nc or (prediction.shape[1] - 4)
 		nm = prediction.shape[1] - nc - 4
 		mi = 4 + nc
-		xc = prediction[:, 4:mi].amax(1).sigmoid() > conf_thres
+		# Filter by max softmax probability (logits -> softmax)
+		cls_logits = prediction[:, 4:mi]
+		cls_probs = torch.softmax(cls_logits / temperature, dim=1)
+		# First-stage filter keeps only candidates likely to pass NMS
+		xc = cls_probs.max(1).values > conf_thres
 		prediction = prediction.transpose(-1, -2)
 
 		if not rotated:
@@ -126,15 +138,15 @@ def apply_yolo_softmax_patch(*, temperature: float = 2.4) -> None:
 			if not x.shape[0]:
 				continue
 
-			box, cls_conf, mask = x.split((4, nc, nm), 1)
+			box, cls_logits, mask = x.split((4, nc, nm), 1)
 
-			conf, j = cls_conf.max(1, keepdim=True)
-			conf = conf.sigmoid()
+			# cls_logits are raw logits after patching Detect._inference
+			cls_probs = torch.softmax(cls_logits / temperature, dim=1)
+			max_prob, j = cls_probs.max(1, keepdim=True)
 
-			cls_conf = torch.softmax(cls_conf / temperature, dim=1)
-
-			x = torch.cat((box, conf, j.float(), cls_conf, mask), 1)[
-				conf.view(-1) > conf_thres
+			# Second-stage filter keeps consistency with standard Ultralytics NMS flow
+			x = torch.cat((box, max_prob, j.float(), cls_probs, mask), 1)[
+				max_prob.view(-1) > conf_thres
 			]
 			if classes is not None:
 				x = x[(x[:, 5:6] == classes).any(1)]
