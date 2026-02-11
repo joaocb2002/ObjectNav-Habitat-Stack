@@ -47,7 +47,7 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
     conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
 # Install conda-lock for reproducible env creation
-RUN python -m pip install --no-cache-dir conda-lock==4.0.0
+RUN python -m pip install --no-cache-dir conda-lock==3.0.4
 
 # Create conda env from lockfile and clean up package cache
 COPY conda-lock.yml /tmp/conda-lock.yml
