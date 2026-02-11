@@ -7,9 +7,9 @@ import numpy as np
 import torch
 from ultralytics import YOLO
 
-from objectnav.perception.config import YoloConfig
-from objectnav.perception.detections import Detection
-from objectnav.perception.patches import apply_yolo_softmax_patch
+from .config import YoloConfig
+from .detections import Detection
+from .patches import apply_yolo_softmax_patch
 
 
 class YOLODetector:
