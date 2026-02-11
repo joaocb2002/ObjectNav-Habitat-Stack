@@ -182,11 +182,13 @@ Lockfiles (required for reproducibility):
 Lockfile generation commands:
 
 ```bash
+# Note: conda-lock must be the same version as in base dockerfile
 conda-lock -f docker/base/environment.yml -p linux-64 --lockfile docker/base/conda-lock.yml
 ```
 
 ```bash
-pip-compile --generate-hashes --resolver=backtracking --output-file docker/project/requirements.lock docker/project/requirements.txt
+# Note: python version must be the same as in environment.yml (3.9)
+python -m piptools compile --generate-hashes --allow-unsafe -o requirements.lock requirements.txt
 ```
 
 **Build behavior**
