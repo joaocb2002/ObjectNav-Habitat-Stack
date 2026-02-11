@@ -224,3 +224,14 @@ data/
 
 # Datasets
 datasets/
+
+# Other stuff
+.anaconda/
+.conda/
+.config/
+.dotnet/
+.gnupg/
+.local/
+.vscode-server/
+.codex/
+.gitconfig
