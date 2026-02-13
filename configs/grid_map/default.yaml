@@ -2,5 +2,6 @@
 # NOTE: meters_per_pixel is computed in code and is intentionally omitted.
 
 map_resolution: 1024
+meters_per_pixel: null # computed at runtime from navmesh size
 height: 0.0
 draw_border: true
