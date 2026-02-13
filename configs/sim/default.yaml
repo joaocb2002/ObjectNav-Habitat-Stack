@@ -10,6 +10,7 @@ allow_sliding: false
 # --- Sensor parameters ---
 obs_scale: 0.5625  # 9/16
 rgb_width: 1024
+rgb_height: null  # Computed from width and obs_scale at runtime.
 sensor_height: 1.5
 hfov_deg: 90.0
 
