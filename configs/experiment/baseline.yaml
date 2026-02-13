@@ -1,4 +1,7 @@
 # Experiment preset: baseline
+name: floorplan1_physics_baseline
+seed: 1234
+
 # Selects variants from config groups.
 defaults:
   - /sim: floorplan1_physics
@@ -7,10 +10,6 @@ defaults:
   - /grid_map: default
   - _self_
 
-# Optional overrides for this experiment
-experiment:
-  name: floorplan1_physics_baseline
-  seed: 1234
 
 # A good pattern: define run/output directories in one place 
 # inside the config to be accessible during runtime. 
@@ -23,4 +22,4 @@ paths:
 # Single-run output directory
 hydra:
   run:
-    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}_${experiment.name}
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}_${name}

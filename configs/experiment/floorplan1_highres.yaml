@@ -1,7 +1,7 @@
 # Experiment preset: FloorPlan1 + high-res grid map
+name: floorplan1_highres_baseline
+
 defaults:
   - grid_map: highres
   - _self_
 
-experiment:
-  name: floorplan1_highres_baseline

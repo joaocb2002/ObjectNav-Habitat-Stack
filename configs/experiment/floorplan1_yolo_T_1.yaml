@@ -1,6 +1,5 @@
+name: floorplan1_highres_yolo_T_1
+
 defaults:
   - perception: softmax_T_1
   - _self_
-
-experiment:
-  name: floorplan1_highres_yolo_T_1
