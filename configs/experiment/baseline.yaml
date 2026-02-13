@@ -1,10 +1,10 @@
 # Experiment preset: baseline
 # Selects variants from config groups.
 defaults:
-  - sim: floorplan1_physics
-  - navmesh: default
-  - grid_map: default
-  - perception: default
+  - /sim: floorplan1_physics
+  - /perception: default
+  - /navmesh: default
+  - /grid_map: default
   - _self_
 
 # Optional overrides for this experiment
