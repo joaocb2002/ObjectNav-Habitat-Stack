@@ -5,6 +5,7 @@
 scene_dataset_config: null
 scene_id: null
 enable_physics: false
+allow_sliding: false
 
 # --- Sensor parameters ---
 obs_scale: 0.5625  # 9/16
