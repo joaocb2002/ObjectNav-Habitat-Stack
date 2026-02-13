@@ -33,7 +33,7 @@ class YoloConfig:
 
     # --- Patches ---
     use_softmax_patch: bool = field(
-        default=False,
+        default=True,
         metadata={"help": "Apply softmax patch to expose class probabilities."},
     )
     softmax_temperature: float = field(
