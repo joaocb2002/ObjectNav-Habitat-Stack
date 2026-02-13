@@ -1,10 +1,26 @@
 # Experiment preset: baseline
 # Selects variants from config groups.
-
 defaults:
-  - override /sim: floorplan1_physics
-  - override /navmesh: default
-  - override /grid_map: default
+  - sim: floorplan1_physics
+  - navmesh: default
+  - grid_map: default
+  - perception: default
   - _self_
 
-run_name: baseline
+# Optional overrides for this experiment
+experiment:
+  name: floorplan1_physics_baseline
+  seed: 1234
+
+# A good pattern: define run/output directories in one place 
+# inside the config to be accessible during runtime. 
+paths:
+  run_dir: ${hydra:runtime.output_dir}
+  artifacts_dir: ${paths.run_dir}/artifacts
+  checkpoints_dir: ${paths.run_dir}/checkpoints
+  logs_dir: ${paths.run_dir}/logs
+
+# Single-run output directory
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}_${experiment.name}

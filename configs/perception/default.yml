@@ -1,0 +1,18 @@
+# Defaults for objectnav.perception.YoloConfig
+
+# --- Model parameters ---
+weights_path: datasets/models/yolo11x.pt
+device: cuda:0
+
+# --- Inference parameters ---
+conf: 0.45
+iou: 0.35
+imgsz: [576, 1024]
+rect: true
+half: false
+max_det: 30
+verbose: false
+
+# --- Patches ---
+use_softmax_patch: true
+softmax_temperature: 2.4

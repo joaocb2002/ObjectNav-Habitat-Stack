@@ -1,9 +1,7 @@
 # Experiment preset: FloorPlan1 + high-res grid map
-
 defaults:
-  - override /sim: floorplan1_physics
-  - override /navmesh: default
-  - override /grid_map: highres
+  - grid_map: highres
   - _self_
 
-run_name: floorplan1_highres
+experiment:
+  name: floorplan1_highres_baseline

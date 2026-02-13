@@ -1,13 +1,8 @@
 # Hydra root config (composition)
 # Compose defaults from config groups.
 # CLI overrides take highest precedence.
+# This is the “entry” config that picks an experiment by default.
 
 defaults:
-  - sim: default
-  - navmesh: default
-  - grid_map: default
+  - experiment: baseline
   - _self_
-
-# Optional run metadata
-run_name: default
-seed: 123
