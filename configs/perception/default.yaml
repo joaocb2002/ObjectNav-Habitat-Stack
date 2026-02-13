@@ -2,7 +2,7 @@
 
 # --- Model parameters ---
 weights_path: datasets/models/yolo11x.pt
-device: cuda:0
+device: auto
 
 # --- Inference parameters ---
 conf: 0.45
