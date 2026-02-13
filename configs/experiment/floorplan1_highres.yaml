@@ -1,7 +1,10 @@
+# @package _global_
 # Experiment preset: FloorPlan1 + high-res grid map
 name: floorplan1_highres_baseline
+seed: 1234
 
 defaults:
-  - grid_map: highres
+  - /experiment: baseline
+  - /grid_map: highres
   - _self_
 

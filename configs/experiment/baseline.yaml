@@ -1,3 +1,4 @@
+# @package _global_
 # Experiment preset: baseline
 name: floorplan1_physics_baseline
 seed: 1234
@@ -9,17 +10,3 @@ defaults:
   - /navmesh: default
   - /grid_map: default
   - _self_
-
-
-# A good pattern: define run/output directories in one place 
-# inside the config to be accessible during runtime. 
-paths:
-  run_dir: ${hydra:runtime.output_dir}
-  artifacts_dir: ${paths.run_dir}/artifacts
-  checkpoints_dir: ${paths.run_dir}/checkpoints
-  logs_dir: ${paths.run_dir}/logs
-
-# Single-run output directory
-hydra:
-  run:
-    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}_${name}
